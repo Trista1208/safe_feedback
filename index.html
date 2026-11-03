@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anonymous Feedback · Applied Data Science & AI</title>
+<meta name="description" content="Leave anonymous feedback for the Applied Data Science & AI team at HSLU.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f3ee;
+    --paper: #fffdf9;
+    --ink: #1c1f2a;
+    --muted: #6b6f7b;
+    --line: #e4ded4;
+    --accent: #2f4bd8;
+    --accent-soft: #e8ecfd;
+    --warm: #ff7a59;
+    --ok: #1f8a5b;
+    --shadow: 0 1px 2px rgba(28,31,42,.04), 0 12px 40px -12px rgba(28,31,42,.18);
+    --radius: 22px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #11131a; --paper: #191c26; --ink: #eef0f6; --muted: #9aa0b0;
+      --line: #2a2e3b; --accent: #8ea2ff; --accent-soft: #232a4a; --warm: #ff9a7e;
+      --ok: #4fd39a; --shadow: 0 12px 40px -12px rgba(0,0,0,.6);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "DM Sans", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* soft background shapes */
+  .blob { position: fixed; border-radius: 50%; filter: blur(70px); opacity: .45; z-index: 0; pointer-events: none; }
+  .blob.a { width: 420px; height: 420px; background: var(--accent-soft); top: -120px; right: -100px; }
+  .blob.b { width: 320px; height: 320px; background: color-mix(in srgb, var(--warm) 25%, transparent); bottom: -100px; left: -80px; }
+
+  .wrap { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 32px 16px 64px; }
+
+  header.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+  .brand { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .brand b { color: var(--ink); }
+  .lang { display: flex; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+  .lang button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+  .hero h1 {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(44px, 9vw, 68px);
+    line-height: 1.02;
+    letter-spacing: -.01em;
+    margin: 0 0 16px;
+  }
+  .hero h1 em { color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 18px; margin: 0 0 28px; max-width: 34em; }
+
+  .safe {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
+    padding: 16px 18px; margin-bottom: 24px;
+  }
+  .safe .icon { flex: none; width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+  .safe strong { display: block; margin-bottom: 2px; }
+  .safe ul { margin: 6px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 14px; }
+  .safe li::before { content: "✓"; color: var(--ok); font-weight: 700; margin-right: 8px; }
+
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; }
+  @media (max-width: 520px) { .card { padding: 20px; } }
+
+  .label { font-weight: 600; font-size: 15px; margin: 0 0 10px; display: block; }
+  .label small { font-weight: 400; color: var(--muted); }
+  .field { margin-bottom: 26px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip, .mood { position: relative; }
+  .chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .chip span {
+    display: inline-block; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--bg); font-size: 14px; cursor: pointer;
+    transition: all .15s ease; user-select: none;
+  }
+  .chip span:hover { border-color: var(--accent); }
+  .chip input:checked + span { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .moods { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .mood input { position: absolute; opacity: 0; pointer-events: none; }
+  .mood span {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 4px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg);
+    cursor: pointer; font-size: 26px; transition: transform .15s ease, border-color .15s;
+  }
+  .mood span i { font-style: normal; font-size: 11px; color: var(--muted); text-align: center; line-height: 1.2; }
+  .mood span:hover { transform: translateY(-2px); }
+  .mood input:checked + span { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-2px); }
+  .mood input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  textarea {
+    width: 100%; min-height: 200px; resize: vertical;
+    font: inherit; font-size: 16px; color: var(--ink);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 16px;
+    padding: 16px; outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  textarea::placeholder { color: var(--muted); }
+  .meta { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .meta .count { white-space: nowrap; }
+  .meta .count.warn { color: var(--warm); }
+
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  button.submit {
+    width: 100%; border: 0; cursor: pointer;
+    background: var(--ink); color: var(--paper);
+    font: inherit; font-weight: 600; font-size: 16px;
+    padding: 16px 20px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform .1s ease, opacity .15s;
+  }
+  button.submit:hover { transform: translateY(-1px); }
+  button.submit:active { transform: translateY(0); }
+  button.submit:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+  .loading .spinner { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error { color: var(--warm); font-size: 14px; margin-top: 12px; display: none; text-align: center; }
+
+  .thanks { text-align: center; padding: 24px 8px; display: none; }
+  .thanks .check {
+    width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 18px;
+    background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok);
+    display: grid; place-items: center; animation: pop .4s cubic-bezier(.2,1.4,.4,1);
+  }
+  .thanks h2 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 40px; margin: 0 0 8px; }
+  .thanks p { color: var(--muted); margin: 0 0 24px; }
+  .thanks button { border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 12px; cursor: pointer; }
+  @keyframes pop { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 28px; }
+  footer details { margin-top: 8px; }
+  footer summary { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  footer details p { text-align: left; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 10px 0 0; }
+</style>
+</head>
+<body>
+<div class="blob a"></div><div class="blob b"></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><b>HSLU</b> · Applied Data Science & AI</div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1 data-i18n="title">Hey, leave <em>anything.</em></h1>
+    <p data-i18n="intro">Praise, ideas, frustrations, something nobody wants to say out loud — the team reads every message. Write it the way you'd actually say it.</p>
+  </section>
+
+  <div class="safe">
+    <div class="icon" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+    </div>
+    <div>
+      <strong data-i18n="safeTitle">Your answer is safe.</strong>
+      <ul>
+        <li data-i18n="safe1">No login, no name, no email — ever.</li>
+        <li data-i18n="safe2">We don't store your IP address, device or browser.</li>
+        <li data-i18n="safe3">Only the date is saved, not the exact time.</li>
+        <li data-i18n="safe4">No cookies, no trackers, no analytics on this page.</li>
+      </ul>
+    </div>
+  </div>
+
+  <main class="card">
+    <form id="form" novalidate>
+      <div class="field">
+        <span class="label"><span data-i18n="topicLabel">What's it about?</span> <small data-i18n="optional">(optional)</small></span>
+        <div class="chips" id="topics"></div>
+      </div>
+
+      <div class="field">
+        <span class="label"><span data-i18n="moodLabel">How are you feeling about it?</span> <small data-i18n="optional">(optional)</small></span>
+        <div class="moods" id="moods"></div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="message" data-i18n="msgLabel">Your message</label>
+        <textarea id="message" name="message" maxlength="5000" required data-i18n-ph="placeholder" placeholder="Type freely. There's no wrong answer."></textarea>
+        <div class="meta">
+          <span data-i18n="tip">Tip: leave out names or details that could identify you.</span>
+          <span class="count" id="count">0 / 5000</span>
+        </div>
+      </div>
+
+      <!-- spam trap: humans never see this -->
+      <div class="hp" aria-hidden="true"><label>Leave empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+
+      <button class="submit" type="submit" id="submit" disabled>
+        <span class="spinner"></span><span data-i18n="send">Send anonymously</span>
+      </button>
+      <div class="error" id="error" role="alert"></div>
+    </form>
+
+    <div class="thanks" id="thanks" aria-live="polite">
+      <div class="check"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h2 data-i18n="thanksTitle">Thank you.</h2>
+      <p data-i18n="thanksText">Your message reached the team — without your name attached.</p>
+      <button type="button" id="again" data-i18n="again">Write another one</button>
+    </div>
+  </main>
+
+  <footer>
+    <div data-i18n="footer">Read by the Applied Data Science & AI administration team.</div>
+    <details>
+      <summary data-i18n="howTitle">How is this anonymous?</summary>
+      <p data-i18n="howText">This page is a plain static website. When you press send, only your message, the topic and mood you picked, and today's date are written to a spreadsheet the team can read. The form never asks who you are, and the spreadsheet has no column for IP addresses, emails or accounts. As with any website, the hosting providers (GitHub, Google) technically handle network traffic, but nothing that identifies you is passed on to or stored for the team.</p>
+    </details>
+  </footer>
+</div>
+
+<script>
+  // ============== CONFIG ==============
+  // Paste your Google Apps Script Web App URL between the quotes (see README.md)
+  const ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+  // ====================================
+
+  const T = {
+    en: {
+      title: 'Hey, leave <em>anything.</em>',
+      intro: "Praise, ideas, frustrations, something nobody wants to say out loud — the team reads every message. Write it the way you'd actually say it.",
+      safeTitle: 'Your answer is safe.',
+      safe1: 'No login, no name, no email — ever.',
+      safe2: "We don't store your IP address, device or browser.",
+      safe3: 'Only the date is saved, not the exact time.',
+      safe4: 'No cookies, no trackers, no analytics on this page.',
+      topicLabel: "What's it about?", optional: '(optional)',
+      moodLabel: 'How are you feeling about it?',
+      msgLabel: 'Your message',
+      placeholder: "Type freely. There's no wrong answer.",
+      tip: 'Tip: leave out names or details that could identify you.',
+      send: 'Send anonymously',
+      thanksTitle: 'Thank you.',
+      thanksText: 'Your message reached the team — without your name attached.',
+      again: 'Write another one',
+      footer: 'Read by the Applied Data Science & AI administration team.',
+      howTitle: 'How is this anonymous?',
+      howText: "This page is a plain static website. When you press send, only your message, the topic and mood you picked, and today's date are written to a spreadsheet the team can read. The form never asks who you are, and the spreadsheet has no column for IP addresses, emails or accounts. As with any website, the hosting providers (GitHub, Google) technically handle network traffic, but nothing that identifies you is passed on to or stored for the team.",
+      errEmpty: 'Please write a message first.',
+      errSend: "Hmm, that didn't go through. Please check your connection and try again.",
+      errConfig: 'This form is not connected yet (missing endpoint). Please tell the administration.',
+      topics: ['Courses & teaching', 'Workload & exams', 'Organisation', 'Campus & facilities', 'Wellbeing', 'Idea / suggestion', 'Something else'],
+      moods: ['Frustrated', 'Unhappy', 'Neutral', 'Good', 'Great']
+    },
+    de: {
+      title: 'Hey, schreib uns <em>alles.</em>',
+      intro: 'Lob, Ideen, Frust, etwas, das niemand laut sagen will — das Team liest jede Nachricht. Schreib es so, wie du es wirklich sagen würdest.',
+      safeTitle: 'Deine Antwort ist sicher.',
+      safe1: 'Kein Login, kein Name, keine E-Mail — niemals.',
+      safe2: 'Wir speichern weder IP-Adresse noch Gerät oder Browser.',
+      safe3: 'Gespeichert wird nur das Datum, nicht die Uhrzeit.',
+      safe4: 'Keine Cookies, kein Tracking, keine Analytics auf dieser Seite.',
+      topicLabel: 'Worum geht es?', optional: '(optional)',
+      moodLabel: 'Wie fühlst du dich dabei?',
+      msgLabel: 'Deine Nachricht',
+      placeholder: 'Schreib frei heraus. Es gibt keine falsche Antwort.',
+      tip: 'Tipp: Lass Namen oder Details weg, die dich identifizieren könnten.',
+      send: 'Anonym senden',
+      thanksTitle: 'Danke dir.',
+      thanksText: 'Deine Nachricht ist beim Team angekommen — ohne deinen Namen.',
+      again: 'Noch etwas schreiben',
+      footer: 'Gelesen vom Administrationsteam Applied Data Science & AI.',
+      howTitle: 'Wie ist das anonym?',
+      howText: 'Diese Seite ist eine einfache statische Website. Beim Senden werden nur deine Nachricht, das gewählte Thema und die Stimmung sowie das heutige Datum in eine Tabelle geschrieben, die das Team lesen kann. Das Formular fragt nie, wer du bist, und die Tabelle hat keine Spalte für IP-Adressen, E-Mails oder Konten. Wie bei jeder Website verarbeiten die Hosting-Anbieter (GitHub, Google) technisch den Netzwerkverkehr, aber nichts, was dich identifiziert, wird an das Team weitergegeben oder für es gespeichert.',
+      errEmpty: 'Bitte schreib zuerst eine Nachricht.',
+      errSend: 'Hm, das hat nicht geklappt. Bitte prüfe deine Verbindung und versuche es nochmals.',
+      errConfig: 'Dieses Formular ist noch nicht verbunden (Endpoint fehlt). Bitte informiere die Administration.',
+      topics: ['Kurse & Unterricht', 'Arbeitslast & Prüfungen', 'Organisation', 'Campus & Infrastruktur', 'Wohlbefinden', 'Idee / Vorschlag', 'Etwas anderes'],
+      moods: ['Frustriert', 'Unzufrieden', 'Neutral', 'Gut', 'Super']
+    }
+  };
+  const TOPIC_KEYS = ['teaching', 'workload', 'organisation', 'facilities', 'wellbeing', 'idea', 'other'];
+  const MOOD_EMOJI = ['😤', '😕', '😐', '🙂', '🤩'];
+
+  const $ = s => document.querySelector(s);
+  const form = $('#form'), msg = $('#message'), btn = $('#submit'), err = $('#error');
+  let lang = (navigator.language || '').toLowerCase().startsWith('de') ? 'de' : 'en';
+  try { const saved = localStorage.getItem('fb-lang'); if (saved === 'de' || saved === 'en') lang = saved; } catch (e) {}
+
+  function render() {
+    const t = T[lang];
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t[el.dataset.i18n]; });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t[el.dataset.i18nPh]; });
+    document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+
+    const checkedTopics = new Set([...document.querySelectorAll('input[name=topic]:checked')].map(i => i.value));
+    $('#topics').innerHTML = TOPIC_KEYS.map((k, i) =>
+      `<label class="chip"><input type="checkbox" name="topic" value="${k}" ${checkedTopics.has(k) ? 'checked' : ''}><span>${t.topics[i]}</span></label>`).join('');
+
+    const checkedMood = (document.querySelector('input[name=mood]:checked') || {}).value;
+    $('#moods').innerHTML = MOOD_EMOJI.map((e, i) =>
+      `<label class="mood"><input type="radio" name="mood" value="${i + 1}" ${checkedMood == i + 1 ? 'checked' : ''}><span>${e}<i>${t.moods[i]}</i></span></label>`).join('');
+  }
+
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => {
+    lang = b.dataset.lang;
+    try { localStorage.setItem('fb-lang', lang); } catch (e) {}
+    render();
+  }));
+
+  msg.addEventListener('input', () => {
+    const n = msg.value.length;
+    $('#count').textContent = `${n} / 5000`;
+    $('#count').classList.toggle('warn', n > 4500);
+    btn.disabled = msg.value.trim().length === 0;
+    err.style.display = 'none';
+  });
+
+  function showError(text) { err.textContent = text; err.style.display = 'block'; }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const t = T[lang];
+    if (!msg.value.trim()) return showError(t.errEmpty);
+    if (form.website.value) return; // bot
+    if (!ENDPOINT.startsWith('https://')) return showError(t.errConfig);
+
+    const payload = {
+      message: msg.value.trim(),
+      topics: [...document.querySelectorAll('input[name=topic]:checked')].map(i => i.value).join(', '),
+      mood: (document.querySelector('input[name=mood]:checked') || {}).value || '',
+      lang
+    };
+
+    btn.disabled = true; btn.classList.add('loading');
+    try {
+      // text/plain + no-cors avoids a CORS preflight with Apps Script
+      await fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+      form.style.display = 'none';
+      $('#thanks').style.display = 'block';
+      form.reset(); msg.dispatchEvent(new Event('input'));
+    } catch (_) {
+      showError(t.errSend);
+      btn.disabled = false;
+    } finally {
+      btn.classList.remove('loading');
+    }
+  });
+
+  $('#again').addEventListener('click', () => {
+    $('#thanks').style.display = 'none';
+    form.style.display = 'block';
+    msg.focus();
+  });
+
+  render();
+</script>
+</body>
+</html>
